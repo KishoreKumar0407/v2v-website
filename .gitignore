@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+.vite/
+.vercel/
+*.log
+*.db
+*.sqlite
+

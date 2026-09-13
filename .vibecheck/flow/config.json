@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "projectName": "V2VIntrenWorkCompletion",
+  "userName": "developer",
+  "skillLevel": "intermediate",
+  "outputFolder": ".vibecheck/flow",
+  "planningArtifacts": ".vibecheck/flow/planning-artifacts",
+  "implementationArtifacts": ".vibecheck/flow/implementation-artifacts",
+  "installedAt": "2026-08-29T12:46:14.834Z",
+  "ide": [
+    "vscode"
+  ]
+}
