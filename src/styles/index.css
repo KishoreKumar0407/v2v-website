@@ -1,0 +1,285 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  :root {
+    --radius: 0.625rem;
+    --background: 220 30% 96%;
+    --foreground: 220 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 10%;
+    --primary: 262 75% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 10% 10%;
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 8% 46%;
+    --accent: 220 15% 92%;
+    --accent-foreground: 220 10% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262 75% 65%;
+    --chart-1: 262 75% 65%;
+    --chart-2: 220 70% 50%;
+    --chart-3: 280 65% 60%;
+    --chart-4: 240 60% 70%;
+    --chart-5: 300 55% 65%;
+  }
+
+  .dark,
+  [data-theme="dark"] {
+    --background: 255 50% 8%;
+    /* #0f0a1e */
+    --foreground: 220 10% 98%;
+    --card: 255 50% 8%;
+    --card-foreground: 220 10% 98%;
+    --popover: 255 50% 8%;
+    --popover-foreground: 220 10% 98%;
+    --primary: 262 75% 70%;
+    --primary-foreground: 255 50% 8%;
+    --secondary: 255 50% 10%;
+    --secondary-foreground: 220 10% 98%;
+    --muted: 255 50% 10%;
+    --muted-foreground: 220 8% 65%;
+    --accent: 255 50% 10%;
+    --accent-foreground: 220 10% 98%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 255 50% 15%;
+    --input: 255 50% 15%;
+    --ring: 262 75% 65%;
+    --chart-1: 262 75% 70%;
+    --chart-2: 220 70% 60%;
+    --chart-3: 280 65% 65%;
+    --chart-4: 240 60% 75%;
+    --chart-5: 300 55% 70%;
+  }
+
+  html,
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  .shadow-xs {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+  }
+
+  @keyframes section-arrow-opacity {
+    0% {
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.85;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes section-arrow-bounce {
+    0%,
+    100% {
+      transform: translateY(0.15rem);
+    }
+
+    50% {
+      transform: translateY(1rem);
+    }
+  }
+
+  .section-arrow-container {
+    animation: section-arrow-bounce 1.8s ease-in-out infinite;
+  }
+
+  .section-arrow-chevron {
+    display: block;
+    animation: section-arrow-opacity 1.8s ease-in-out infinite;
+  }
+
+  .section-arrow-chevron:last-child {
+    margin-top: -0.35rem;
+    animation-direction: reverse;
+  }
+
+  .section-arrow-chevron > span {
+    display: block;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-right: 0.25rem solid currentColor;
+    border-bottom: 0.25rem solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  @media (min-width: 768px) {
+    .section-arrow-chevron > span {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-arrow-container,
+    .section-arrow-chevron {
+      animation: none;
+    }
+  }
+}
+
+@layer components {
+  .interactive-card {
+    transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  }
+
+  .interactive-card:hover {
+    transform: translateY(-6px);
+    border-color: hsl(var(--primary) / 0.45);
+    box-shadow: 0 18px 40px hsl(var(--primary) / 0.16);
+  }
+
+  .interactive-image {
+    transition: transform 400ms ease, box-shadow 400ms ease, border-color 400ms ease;
+  }
+
+  .interactive-image:hover {
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary) / 0.55);
+    box-shadow: 0 18px 36px hsl(var(--primary) / 0.2);
+  }
+
+  .interactive-image img {
+    transition: transform 500ms ease, filter 500ms ease;
+  }
+
+  .interactive-image:hover img {
+    transform: scale(1.04);
+    filter: saturate(1.12) contrast(1.03);
+  }
+
+  .what-we-do-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 18rem;
+    box-shadow: none;
+    transition: transform 300ms ease, filter 300ms ease, opacity 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  }
+
+  .what-we-do-card::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 0.2rem;
+    background: linear-gradient(90deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.8), hsl(var(--primary) / 0.2));
+    content: "";
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+
+  .what-we-do-card:hover {
+    z-index: 1;
+    transform: translateY(-8px) rotate(-0.5deg);
+    border-color: hsl(var(--primary) / 0.65);
+    box-shadow: 0 10px 0 hsl(var(--primary) / 0.12), 0 24px 44px hsl(var(--primary) / 0.2);
+  }
+
+  .what-we-do-card:hover::before {
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .what-we-do-list:has(.what-we-do-card:hover) .what-we-do-card:not(:hover) {
+      filter: blur(4px);
+      opacity: 0.58;
+      transform: scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .what-we-do-card {
+      transition: border-color 300ms ease, box-shadow 300ms ease;
+    }
+
+    .what-we-do-card:hover {
+      transform: none;
+    }
+  }
+}
+
+/* Glassmorphic Pill Button (Admin Style) */
+.neon-button {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.5em 1.5em;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 9999px;
+  outline: none;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.neon-button:hover {
+  border-color: rgba(155, 135, 245, 0.3);
+  box-shadow: 0 0 20px rgba(155, 135, 245, 0.5);
+  /* Purple glow on hover */
+  transform: translateY(-1px);
+}
+
+.neon-button:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(155, 135, 245, 0.3);
+}
+
+.neon-button::after {
+  content: none;
+}
