@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { ManagerField } from './managerTypes';
 import { processImageFile } from '@/lib/imageUtils';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
@@ -15,33 +16,40 @@ export default function ManagerFieldRenderer({ field, value, onChange, disabled 
     const id = `field-${field.id ?? field.name}`;
     const normalizedName = String(field.name || '').toLowerCase().replace(/[_-]+/g, ' ');
     const isImageField = field.field_type === 'image' || /(^|\s)(image|cover)(\s|$)/i.test(normalizedName) || /image.*url|cover.*url/i.test(normalizedName);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const renderImageInput = () => (
         <div className="space-y-3">
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                <label className="cursor-pointer inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-300 text-xs px-3 py-2 rounded-lg border border-slate-700 transition-colors">
+                <input
+                    ref={fileInputRef}
+                    id={id}
+                    type="file"
+                    accept="image/*"
+                    disabled={disabled}
+                    onChange={async e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                            const compressed = await processImageFile(file);
+                            onChange(compressed);
+                        } catch (err) {
+                            console.error('Failed to process image file:', err);
+                        } finally {
+                            e.target.value = '';
+                        }
+                    }}
+                    className="hidden"
+                />
+                <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="cursor-pointer inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-300 text-xs px-3 py-2 rounded-lg border border-slate-700 transition-colors"
+                >
                     <Upload className="w-4 h-4" />
                     <span>Upload Image File</span>
-                    <input
-                        id={id}
-                        type="file"
-                        accept="image/*"
-                        disabled={disabled}
-                        onChange={async e => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            try {
-                                const compressed = await processImageFile(file);
-                                onChange(compressed);
-                            } catch (err) {
-                                console.error('Failed to process image file:', err);
-                            } finally {
-                                e.target.value = '';
-                            }
-                        }}
-                        className="hidden"
-                    />
-                </label>
+                </button>
                 <span className="text-xs text-muted-foreground">or image URL:</span>
                 <input
                     type="text"

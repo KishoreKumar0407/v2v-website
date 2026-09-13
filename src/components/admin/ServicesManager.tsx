@@ -1,4 +1,4 @@
-import { useEffect, useState, ChangeEvent } from 'react';
+import { useEffect, useState, useRef, ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,7 @@ export default function ServicesManager({ user }: ServicesManagerProps) {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [serviceForm, setServiceForm] = useState(emptyService);
   const [errorMsg, setErrorMsg] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
   const getHeaders = (): Record<string, string> => {
@@ -270,16 +271,21 @@ export default function ServicesManager({ user }: ServicesManagerProps) {
                   
                   <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     {/* Upload File Button */}
-                    <label className="cursor-pointer inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-300 text-xs px-3 py-2 rounded-lg border border-slate-700 transition-colors">
+                    <input 
+                      ref={fileInputRef}
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleImageUpload} 
+                      className="hidden" 
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-slate-800 hover:bg-slate-700 text-blue-300 text-xs border border-slate-700 flex items-center gap-2 px-3 py-2 h-auto"
+                    >
                       <Upload className="w-4 h-4" />
                       <span>Upload Image File</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleImageUpload} 
-                        className="hidden" 
-                      />
-                    </label>
+                    </Button>
 
                     <span className="text-xs text-muted-foreground">or image URL:</span>
 
