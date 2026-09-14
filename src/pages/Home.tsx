@@ -228,7 +228,7 @@ const FeaturesSection = () => {
 };
 
 const DetailedServicesSection = () => {
-  const services = [
+  const defaultServices = [
     {
       id: "problem-identification",
       title: "Problem Identification",
@@ -261,6 +261,35 @@ const DetailedServicesSection = () => {
     }
   ];
 
+  const [servicesList, setServicesList] = useState(defaultServices);
+
+  useEffect(() => {
+    const fetchDetailedServices = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/footer-services`);
+        const data = await response.json();
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          const merged = data.data.map((backendSvc: any, index: number) => {
+            const fallback = defaultServices[index] || defaultServices.find(
+              d => d.title.toLowerCase() === (backendSvc.name || '').toLowerCase()
+            ) || defaultServices[0];
+
+            return {
+              id: backendSvc.href ? backendSvc.href.replace(/^\//, '') : fallback.id,
+              title: backendSvc.name || fallback.title,
+              content: fallback.content,
+              image: backendSvc.image && backendSvc.image.trim() ? backendSvc.image : fallback.image
+            };
+          });
+          setServicesList(merged);
+        }
+      } catch (err) {
+        console.error("Failed to fetch detailed services for home section:", err);
+      }
+    };
+    fetchDetailedServices();
+  }, []);
+
   return (
     <section id="services" className="py-24 bg-background">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -282,9 +311,9 @@ const DetailedServicesSection = () => {
         </div>
 
         <div className="space-y-16">
-          {services.map((service, index) => (
+          {servicesList.map((service, index) => (
             <motion.div
-              key={index}
+              key={service.id || index}
               id={service.id}
               className={`flex flex-col md:flex-row gap-8 items-center scroll-mt-8 ${index % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}
               initial={{ opacity: 0, y: 20 }}
