@@ -403,17 +403,20 @@ export default function ServicesManager({ user }: ServicesManagerProps) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button 
+                      variant="outline"
+                      size="sm"
                       onClick={() => openEditService(svc)} 
-                      className="p-2 rounded-lg hover:bg-blue-500/20 text-blue-400 transition-colors"
-                      title="Edit"
+                      className="bg-blue-950/40 hover:bg-blue-900/50 text-blue-300 border-blue-500/30 text-xs flex items-center gap-1.5 h-8 px-3"
+                      title="Upload Image or Edit Details"
                     >
-                      <Pencil className="w-4 h-4" />
-                    </button>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Image / Edit</span>
+                    </Button>
                     <button 
                       onClick={() => deleteService(svc.id)} 
-                      className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />

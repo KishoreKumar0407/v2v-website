@@ -1,10 +1,11 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Pencil, Plus, Save, Trash2 } from 'lucide-react';
+import { Home, Pencil, Plus, Save, Trash2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { API_BASE_URL, getAuthHeaders } from '@/lib/apiConfig';
 import { useToast } from '@/components/ui/toast';
+import { processImageFile } from '@/lib/imageUtils';
 
 import { HOMEPAGE_DEFAULTS } from '@/data/homepageDefaults';
 
@@ -19,6 +20,65 @@ type Content = { hero: Hero; capabilities: Capabilities; detailed_services: Deta
 interface Props { user: { role: string; email: string; name: string } | null; }
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
+function ServiceImageUploadInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await processImageFile(file);
+      onChange(compressed);
+    } catch (err) {
+      console.error('Failed to process image:', err);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  return (
+    <div className="space-y-2 pt-1">
+      <label className="text-xs text-muted-foreground block font-medium flex items-center gap-1.5">
+        <ImageIcon className="w-3.5 h-3.5 text-violet-400" />
+        Service Image
+      </label>
+      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          className="bg-slate-800 hover:bg-slate-700 text-violet-300 border border-slate-700 text-xs flex items-center gap-1.5 h-9 shrink-0"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span>Upload Image File</span>
+        </Button>
+        <span className="text-xs text-muted-foreground">or URL:</span>
+        <input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm"
+          placeholder="/services/image.png or https://"
+        />
+        {value && (
+          <Button type="button" variant="ghost" size="sm" onClick={() => onChange('')} className="text-red-400 hover:text-red-300 text-xs p-1 h-auto">
+            Remove
+          </Button>
+        )}
+      </div>
+      {value && (
+        <div className="flex items-center gap-2 pt-1">
+          <span className="text-xs text-muted-foreground">Preview:</span>
+          <div className="h-12 w-20 rounded border border-border bg-slate-950 p-0.5 flex items-center justify-center overflow-hidden">
+            <img src={value} alt="Preview" className="max-h-full max-w-full object-contain" onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function HomepageContentManager({ user }: Props) {
   const toast = useToast();
@@ -80,7 +140,34 @@ export default function HomepageContentManager({ user }: Props) {
 
             <SectionCard title="Our Detailed Services" open={open === 'detailed_services'} onOpen={() => setOpen(open === 'detailed_services' ? null : 'detailed_services')} onSave={() => save('detailed_services')} saving={saving === 'detailed_services'}>
               <TextFields value={content.detailed_services} onChange={v => setContent(c => ({ ...c, detailed_services: v }))} />
-              <div className="space-y-3">{content.detailed_services.items.map((item, i) => <div key={i} className="rounded-xl border border-border/50 p-4 space-y-2"><div className="flex justify-between"><b>Service {i + 1}</b><button onClick={() => setContent(c => ({ ...c, detailed_services: { ...c.detailed_services, items: c.detailed_services.items.filter((_, x) => x !== i) } }))} className="text-red-400"><Trash2 className="w-4 h-4" /></button></div><div className="grid md:grid-cols-2 gap-2"><input value={item.id} onChange={e => setContent(c => updateService(c, i, { id: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Anchor ID" /><input value={item.title} onChange={e => setContent(c => updateService(c, i, { title: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Title" /></div><textarea value={item.content} onChange={e => setContent(c => updateService(c, i, { content: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-24" placeholder="Content" /><input value={item.image} onChange={e => setContent(c => updateService(c, i, { image: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Image path or URL" /></div>)}<Button variant="outline" onClick={() => setContent(c => ({ ...c, detailed_services: { ...c.detailed_services, items: [...c.detailed_services.items, { id: '', title: '', content: '', image: '' }] } }))}><Plus className="w-4 h-4 mr-2" />Add Service</Button></div>
+              <div className="space-y-3">
+                {content.detailed_services.items.map((item, i) => (
+                  <div key={i} className="rounded-xl border border-border/50 p-4 space-y-3 bg-card/30">
+                    <div className="flex justify-between items-center">
+                      <b className="text-violet-300">Service {i + 1} (Order {i + 1})</b>
+                      <button onClick={() => setContent(c => ({ ...c, detailed_services: { ...c.detailed_services, items: c.detailed_services.items.filter((_, x) => x !== i) } }))} className="text-red-400 hover:text-red-300">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Anchor ID (href slug)</label>
+                        <input value={item.id} onChange={e => setContent(c => updateService(c, i, { id: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Anchor ID (e.g. problem-identification)" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Service Title</label>
+                        <input value={item.title} onChange={e => setContent(c => updateService(c, i, { title: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Title" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground block mb-1">Content Description</label>
+                      <textarea value={item.content} onChange={e => setContent(c => updateService(c, i, { content: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-24" placeholder="Content" />
+                    </div>
+                    <ServiceImageUploadInput value={item.image} onChange={img => setContent(c => updateService(c, i, { image: img }))} />
+                  </div>
+                ))}
+                <Button variant="outline" onClick={() => setContent(c => ({ ...c, detailed_services: { ...c.detailed_services, items: [...c.detailed_services.items, { id: '', title: '', content: '', image: '' }] } }))}><Plus className="w-4 h-4 mr-2" />Add Service</Button>
+              </div>
             </SectionCard>
 
             <SectionCard title="Proven Track Record" open={open === 'track_record'} onOpen={() => setOpen(open === 'track_record' ? null : 'track_record')} onSave={() => save('track_record')} saving={saving === 'track_record'}>
