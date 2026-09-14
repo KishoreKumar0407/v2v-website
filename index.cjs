@@ -1265,27 +1265,22 @@ app.get('/api/footer-services', async (req, res) => {
         let result = await pool.query('SELECT * FROM footer_services ORDER BY display_order ASC, id ASC');
         let rows = result.rows || [];
 
-        const defaultCoreServices = [
-            { name: "Problem Identification", href: "/problem-identification", display_order: 1 },
-            { name: "R&D Solutions", href: "/rd-solutions", display_order: 2 },
-            { name: "Technology Transfer", href: "/technology-transfer", display_order: 3 },
-            { name: "Industry Collaboration", href: "/industry-collaboration", display_order: 4 },
-            { name: "Consulting", href: "/consulting", display_order: 5 }
-        ];
+        // Seed default core services ONLY if the table is completely empty
+        if (rows.length === 0) {
+            const defaultCoreServices = [
+                { name: "Problem Identification", href: "/problem-identification", display_order: 1 },
+                { name: "R&D Solutions", href: "/rd-solutions", display_order: 2 },
+                { name: "Technology Transfer", href: "/technology-transfer", display_order: 3 },
+                { name: "Industry Collaboration", href: "/industry-collaboration", display_order: 4 },
+                { name: "Consulting", href: "/consulting", display_order: 5 }
+            ];
 
-        let restoredAny = false;
-        for (const defaultSvc of defaultCoreServices) {
-            const exists = rows.some(r => r.display_order === defaultSvc.display_order || r.href === defaultSvc.href || (r.name && r.name.toLowerCase() === defaultSvc.name.toLowerCase()));
-            if (!exists) {
-                restoredAny = true;
+            for (const defaultSvc of defaultCoreServices) {
                 await pool.query(
                     'INSERT INTO footer_services (name, href, display_order, image) VALUES ($1, $2, $3, $4)',
                     [defaultSvc.name, defaultSvc.href, defaultSvc.display_order, '']
                 );
             }
-        }
-
-        if (restoredAny) {
             result = await pool.query('SELECT * FROM footer_services ORDER BY display_order ASC, id ASC');
             rows = result.rows || [];
         }

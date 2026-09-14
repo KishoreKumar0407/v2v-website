@@ -410,18 +410,21 @@ export default function ServicesManager({ user }: ServicesManagerProps) {
                       size="sm"
                       onClick={() => openEditService(svc)} 
                       className="bg-blue-950/40 hover:bg-blue-900/50 text-blue-300 border-blue-500/30 text-xs flex items-center gap-1.5 h-8 px-3"
-                      title="Upload Image or Edit Details"
+                      title="Upload Image or Edit Details of this Branch"
                     >
                       <Upload className="w-3.5 h-3.5" />
                       <span>Upload Image / Edit</span>
                     </Button>
-                    <button 
+                    <Button 
+                      variant="ghost"
+                      size="sm"
                       onClick={() => deleteService(svc.id)} 
-                      className="p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
-                      title="Delete"
+                      className="hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs flex items-center gap-1.5 h-8 px-2.5"
+                      title="Remove this Branch"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Remove Branch</span>
+                    </Button>
                   </div>
                 </div>
               ))}
