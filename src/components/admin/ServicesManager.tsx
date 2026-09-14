@@ -59,8 +59,9 @@ export default function ServicesManager({ user }: ServicesManagerProps) {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/api/footer-services`);
       const data = await res.json();
-      if (data.data) {
-        setServices(data.data);
+      if (data.data && Array.isArray(data.data)) {
+        const sorted = [...data.data].sort((a: Service, b: Service) => a.display_order - b.display_order);
+        setServices(sorted);
       }
     } catch (error) {
       console.error("Error fetching services:", error);
