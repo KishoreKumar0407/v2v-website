@@ -163,7 +163,7 @@ const FeaturesSection = () => {
     title: string;
     description: string;
     items: { title: string; description: string }[];
-  }>(HOMEPAGE_DEFAULTS.capabilities);
+  }>(HOMEPAGE_DEFAULTS.capabilities as any);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/homepage-content`)

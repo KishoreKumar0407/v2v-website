@@ -22,7 +22,7 @@ const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
 export default function HomepageContentManager({ user }: Props) {
   const toast = useToast();
-  const [content, setContent] = useState<Content>(HOMEPAGE_DEFAULTS as Content);
+  const [content, setContent] = useState<Content>((HOMEPAGE_DEFAULTS as unknown) as Content);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
