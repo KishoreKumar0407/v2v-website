@@ -733,6 +733,51 @@ app.put('/api/admin-users/:id/permissions', async (req, res) => {
     }
 });
 
+// SET / RESET admin user password (Main Admin only)
+app.post('/api/admin-users/set-password', async (req, res) => {
+    const user = await requireMainAdmin(req, res);
+    if (!user) return;
+
+    const { email, id, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ "error": "New password must be at least 6 characters long." });
+    }
+
+    if (!email && !id) {
+        return res.status(400).json({ "error": "User email or ID is required." });
+    }
+
+    try {
+        let target;
+        if (id) {
+            target = await pool.query('SELECT id, email, name FROM admin_users WHERE id = $1', [id]);
+        } else {
+            target = await pool.query('SELECT id, email, name FROM admin_users WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))', [email]);
+        }
+
+        if (target.rows.length === 0) {
+            return res.status(404).json({ "error": "Admin user not found." });
+        }
+
+        const targetUser = target.rows[0];
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await pool.query(
+            'UPDATE admin_users SET password = $1 WHERE id = $2',
+            [hashedPassword, targetUser.id]
+        );
+
+        res.json({
+            "message": "success",
+            "email": targetUser.email,
+            "name": targetUser.name
+        });
+    } catch (err) {
+        res.status(500).json({ "error": "Failed to update password: " + err.message });
+    }
+});
+
+
 // UPDATE PROFILE (Any Admin)
 app.post('/api/update-profile', async (req, res) => {
     const user = await requireAdminUser(req, res);
