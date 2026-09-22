@@ -259,67 +259,25 @@ const FeaturesSection = () => {
 };
 
 const DetailedServicesSection = () => {
-  const defaultServices = [
-    {
-      id: "problem-identification",
-      title: "Problem Identification",
-      content: "At V2V Tech, innovation begins with identifying and defining real-world problems. We analyze inefficiencies, engage with stakeholders, and break down complex challenges to ensure every solution is relevant, scalable, and impactful.",
-      image: "/services/problem-identification.jpg.png"
-    },
-    {
-      id: "rd-solutions",
-      title: "R&D Solutions",
-      content: "We transform validated problems into functional technological solutions through structured Research & Development. Our focus is on building prototypes and engineered systems using AI, IoT, robotics, and sustainable materials.",
-      image: "/services/rd-solutions.jpg.png"
-    },
-    {
-      id: "technology-transfer",
-      title: "Technology Transfer",
-      content: "Innovation holds value only when it reaches the real world. We ensure seamless technology transfer from lab to market by converting prototypes and research outcomes into deployable, scalable, and industry-ready solutions.",
-      image: "/services/technology-transfer.jpg.png"
-    },
-    {
-      id: "industry-collaboration",
-      title: "Industry Collaboration",
-      content: "We act as a technology partner, collaborating with industries, startups, and institutions to co-create impact-driven solutions. By bridging the gap between innovative ideas and industrial implementation, we co-build solutions that truly matter.",
-      image: "/services/industry-collaboration.jpg.png"
-    },
-    {
-      id: "consulting",
-      title: "Consulting",
-      content: "Our strategic and technical consulting helps organizations identify, design, and implement technology-driven solutions. Deeply rooted in practical execution and engineering feasibility, we guide you on how to make it work in the real world.",
-      image: "/services/services-overview.jpg.png"
-    }
-  ];
-
-  const [servicesList, setServicesList] = useState(defaultServices);
+  const [detailedServicesData, setDetailedServicesData] = useState<{
+    eyebrow: string;
+    title: string;
+    description: string;
+    items: { id: string; title: string; content: string; image: string }[];
+  }>(HOMEPAGE_DEFAULTS.detailed_services as any);
 
   useEffect(() => {
-    const fetchDetailedServices = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/footer-services`);
-        const data = await response.json();
-        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
-          const merged = data.data.map((backendSvc: any, index: number) => {
-            const fallback = defaultServices[index] || defaultServices.find(
-              d => d.title.toLowerCase() === (backendSvc.name || '').toLowerCase()
-            ) || defaultServices[0];
-
-            return {
-              id: backendSvc.href ? backendSvc.href.replace(/^\//, '') : fallback.id,
-              title: backendSvc.name || fallback.title,
-              content: fallback.content,
-              image: backendSvc.image && backendSvc.image.trim() ? backendSvc.image : fallback.image
-            };
-          });
-          setServicesList(merged);
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.detailed_services) {
+          setDetailedServicesData(data.data.detailed_services);
         }
-      } catch (err) {
-        console.error("Failed to fetch detailed services for home section:", err);
-      }
-    };
-    fetchDetailedServices();
+      })
+      .catch((err) => console.error("Error loading detailed services:", err));
   }, []);
+
+  const servicesList = detailedServicesData.items || HOMEPAGE_DEFAULTS.detailed_services.items;
 
   return (
     <section id="services" className="py-24 bg-background">
@@ -333,11 +291,11 @@ const DetailedServicesSection = () => {
             transition={{ duration: 0.6 }}
           >
             <Target className="w-4 h-4" />
-            OUR DETAILED SERVICES
+            {detailedServicesData.eyebrow || "OUR DETAILED SERVICES"}
           </motion.span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">In-Depth Solutions</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">{detailedServicesData.title || "In-Depth Solutions"}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive details about the core services we offer to transform your business.
+            {detailedServicesData.description || "Comprehensive details about the core services we offer to transform your business."}
           </p>
         </div>
 
@@ -601,12 +559,29 @@ const ProofSection = () => {
   const statsRef = useRef<HTMLDivElement>(null);
   const isStatsInView = useInView(statsRef, { once: false, amount: 0.3 });
 
-  const stats = [
-    { icon: <Award />, value: 50, label: "Prototypes Built", suffix: "+" },
-    { icon: <Users />, value: 20, label: "Collaborative Solutions", suffix: "+" },
-    { icon: <Calendar />, value: 5, label: "Sustainable Solutions", suffix: "+" },
-    { icon: <TrendingUp />, value: 95, label: "Customer Retention Rate", suffix: "%" },
-  ];
+  const [trackRecordData, setTrackRecordData] = useState<{
+    title: string;
+    description: string;
+    stats: { value: number; label: string; suffix: string }[];
+  }>(HOMEPAGE_DEFAULTS.track_record as any);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.track_record) {
+          setTrackRecordData(data.data.track_record);
+        }
+      })
+      .catch((err) => console.error("Error loading track record:", err));
+  }, []);
+
+  const statsIcons = [<Award key="0" />, <Users key="1" />, <Calendar key="2" />, <TrendingUp key="3" />];
+  const statsList = trackRecordData.stats || HOMEPAGE_DEFAULTS.track_record.stats;
+  const stats = statsList.map((s, idx) => ({
+    ...s,
+    icon: statsIcons[idx % statsIcons.length]
+  }));
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -623,9 +598,9 @@ const ProofSection = () => {
     <section id="proof" className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Proven Track Record</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">{trackRecordData.title || "Proven Track Record"}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Numbers that speak to our commitment to excellence and innovation.
+            {trackRecordData.description || "Numbers that speak to our commitment to excellence and innovation."}
           </p>
         </div>
 
@@ -808,6 +783,22 @@ const ContactSection = () => {
     message: "",
   });
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [footerContact, setFooterContact] = useState<{
+    address: string;
+    email: string;
+    phone: string;
+  }>(HOMEPAGE_DEFAULTS.footer_contact as any);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.footer_contact) {
+          setFooterContact(data.data.footer_contact);
+        }
+      })
+      .catch((err) => console.error("Error loading footer contact:", err));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -857,8 +848,8 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Email</p>
-                    <a href="mailto:contact@v2v.com" className="text-muted-foreground hover:text-primary transition-colors">
-                      info.v2vtech@gmail.com
+                    <a href={`mailto:${footerContact.email || 'info.v2vtech@gmail.com'}`} className="text-muted-foreground hover:text-primary transition-colors">
+                      {footerContact.email || "info.v2vtech@gmail.com"}
                     </a>
                   </div>
                 </div>
@@ -869,8 +860,8 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Phone</p>
-                    <a href="tel:+1234567890" className="text-muted-foreground hover:text-primary transition-colors">
-                      +91 80128 85499
+                    <a href={`tel:${footerContact.phone || '+91 80128 85499'}`} className="text-muted-foreground hover:text-primary transition-colors">
+                      {footerContact.phone || "+91 80128 85499"}
                     </a>
                   </div>
                 </div>
@@ -881,7 +872,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Location</p>
-                    <p className="text-muted-foreground">Tamilnadu,India</p>
+                    <p className="text-muted-foreground">{footerContact.address || "Tamilnadu,India"}</p>
                   </div>
                 </div>
               </div>
@@ -954,6 +945,11 @@ const Footer = () => {
     { name: "Industry Collaboration", href: "/industry-collaboration" },
     { name: "Consulting", href: "/consulting" },
   ]);
+  const [footerContact, setFooterContact] = useState<{
+    address: string;
+    email: string;
+    phone: string;
+  }>(HOMEPAGE_DEFAULTS.footer_contact as any);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -968,6 +964,17 @@ const Footer = () => {
       }
     };
     fetchServices();
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.footer_contact) {
+          setFooterContact(data.data.footer_contact);
+        }
+      })
+      .catch((err) => console.error("Error loading footer contact:", err));
   }, []);
 
   return (
@@ -990,7 +997,7 @@ const Footer = () => {
             <div className="flex space-x-4">
               {[
                 { icon: Linkedin, href: "https://www.linkedin.com/in/v2v-tech-vision-to-value-technologies-b91498396?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
-                { icon: Mail, href: "mailto:info.v2vtech@gmail.com" },
+                { icon: Mail, href: `mailto:${footerContact.email || 'info.v2vtech@gmail.com'}` },
                 { icon: Instagram, href: "https://www.instagram.com/v2vtech?igsh=MXBuaDI2dWJwZGx1Zg==" },
                 { icon: Youtube, href: "https://youtube.com/@v2vtech-visiontovaluetech?si=gquIOnoofqTtUQ-1" },
               ].map((social, idx) => (
@@ -1072,18 +1079,18 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="text-muted-foreground flex items-center">
                 <MapPin className="w-5 h-5 mr-2 text-muted-foreground/70" />
-                Tamilnadu,India
+                {footerContact.address || "Tamilnadu,India"}
               </li>
               <li>
-                <a href="mailto:contact@v2v.com" className="text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center group">
+                <a href={`mailto:${footerContact.email || 'info.v2vtech@gmail.com'}`} className="text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center group">
                   <Mail className="w-5 h-5 mr-2 text-muted-foreground/70" />
-                  info.v2vtech@gmail.com
+                  {footerContact.email || "info.v2vtech@gmail.com"}
                 </a>
               </li>
               <li>
-                <a href="tel:+1234567890" className="text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center group">
+                <a href={`tel:${footerContact.phone || '+91 80128 85499'}`} className="text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center group">
                   <Phone className="w-5 h-5 mr-2 text-muted-foreground/70" />
-                  +91 80128 85499
+                  {footerContact.phone || "+91 80128 85499"}
                 </a>
               </li>
             </ul>
