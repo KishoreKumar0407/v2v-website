@@ -342,8 +342,9 @@ const DetailedServicesSection = () => {
 };
 
 const AboutUsSection = () => {
-  const teamMembers = [
+  const [teamMembers, setTeamMembers] = useState([
     {
+      email: "arunsekar.v2v@gmail.com",
       name: "Arun S",
       role: "Founder (Vision & Strategic Leadership)",
       bio: "Provides the overall vision and strategic direction for V2V. Leverages strong industry connections.",
@@ -351,6 +352,7 @@ const AboutUsSection = () => {
       linkedin: "https://www.linkedin.com/in/arun-sekar-7617b1253/",
     },
     {
+      email: "sivaramireddy.v2v@gmail.com",
       name: "Siva Rami Reddy",
       role: "Hardware R&D Lead",
       bio: "Leads the design, development, and prototyping of innovative hardware solutions.",
@@ -358,6 +360,7 @@ const AboutUsSection = () => {
       linkedin: "https://www.linkedin.com/in/sivaramireddy-venna-37a3661a1/",
     },
     {
+      email: "phravin.v2v@gmail.com",
       name: "Phravin S",
       role: "Software R&D Lead",
       bio: "Oversees software development and digital innovation. Focuses on creating intelligent systems.",
@@ -365,6 +368,7 @@ const AboutUsSection = () => {
       linkedin: "https://www.linkedin.com/in/phravin-s-467503252",
     },
     {
+      email: "mareeswaran.v2v@gmail.com",
       name: "Mareeswaran V",
       role: "Business & Partnerships Lead",
       bio: "Heads business strategy, market engagement, and partnership development.",
@@ -372,6 +376,7 @@ const AboutUsSection = () => {
       linkedin: "https://www.linkedin.com/in/mareeswaran-v-482524306?",
     },
     {
+      email: "sivagurunathan.v2v@gmail.com",
       name: "Sivagurunathan",
       role: "Finance & Operations Lead",
       bio: "Manages financial planning, budgeting, and operational efficiency.",
@@ -379,13 +384,45 @@ const AboutUsSection = () => {
       linkedin: "https://www.linkedin.com/in/sivagurunathan-rajasekar-2386bb344/",
     },
     {
+      email: "jbavanieswaran.v2v@gmail.com",
       name: "Bavanieswaran J",
       role: "Social media & Outreach Lead",
       bio: "Leads Brand Communication, digital presence, and outreach initiatives.",
       image: "/team/bavanies.jpg",
       linkedin: "https://www.linkedin.com/in/bavanieswaran-j-2a0621268",
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const r = await fetch(`${API_BASE_URL}/api/public-team`);
+        if (!r.ok) return;
+        const d = await r.json();
+        if (d.data) {
+          const dbUsers: Array<{ email: string; name: string; image: string; role: string }> = d.data;
+          setTeamMembers((prevMembers) =>
+            prevMembers.map((m) => {
+              const matched = dbUsers.find(
+                (u) => String(u.email).toLowerCase() === String(m.email).toLowerCase()
+              );
+              if (matched && matched.image) {
+                return {
+                  ...m,
+                  name: matched.name || m.name,
+                  image: matched.image,
+                };
+              }
+              return m;
+            })
+          );
+        }
+      } catch (e) {
+        console.error("Failed to fetch dynamic team photos", e);
+      }
+    };
+    fetchTeam();
+  }, []);
 
   // Duplicate the list for infinite scroll
   const scrollingMembers = [...teamMembers, ...teamMembers];
