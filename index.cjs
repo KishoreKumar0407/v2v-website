@@ -639,8 +639,8 @@ app.post('/api/admin-users', async (req, res) => {
         const isMainAdmin = roleValue === 'MAIN_ADMIN';
         const blogsFlag = isMainAdmin ? true : (typeof can_manage_blogs === 'boolean' ? can_manage_blogs : (typeof blog_manager === 'boolean' ? blog_manager : false));
         const exFlag = isMainAdmin ? true : (typeof can_manage_experiments === 'boolean' ? can_manage_experiments : (typeof experiment_manager === 'boolean' ? experiment_manager : false));
-        if (!password) return res.status(400).json({ "error": "Password is required" });
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const userPassword = (password && String(password).trim()) ? password : 'CoFounder@123456';
+        const hashedPassword = await bcrypt.hash(userPassword, 12);
         const granter = user.name || user.email;
 
         const result = await pool.query(

@@ -62,7 +62,7 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
     const [adminMsgs, setAdminMsgs] = useState<Record<number, string>>({});
     const toast = useToast();
     const [showAddAdmin, setShowAddAdmin] = useState(false);
-    const [newAdminForm, setNewAdminForm] = useState({ name: '', email: '', role: 'CO_FOUNDER', can_manage_blogs: false, can_manage_experiments: false });
+    const [newAdminForm, setNewAdminForm] = useState({ name: '', email: '', password: '', role: 'CO_FOUNDER', can_manage_blogs: false, can_manage_experiments: false });
     const [showBlogForm, setShowBlogForm] = useState(false);
     const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
     const [blogForm, setBlogForm] = useState(emptyBlog);
@@ -1086,6 +1086,16 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                                                         <input value={newAdminForm.email} onChange={e => setNewAdminForm(f => ({ ...f, email: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2" />
                                                     </div>
                                                     <div>
+                                                        <label className="text-xs text-muted-foreground">Password (optional, default: CoFounder@123456)</label>
+                                                        <input
+                                                            type="password"
+                                                            placeholder="Leave empty for default (CoFounder@123456)"
+                                                            value={newAdminForm.password}
+                                                            onChange={e => setNewAdminForm(f => ({ ...f, password: e.target.value }))}
+                                                            className="w-full bg-background border border-border rounded-lg px-3 py-2"
+                                                        />
+                                                    </div>
+                                                    <div>
                                                         <label className="text-xs text-muted-foreground">Role</label>
                                                         <select value={newAdminForm.role} onChange={e => setNewAdminForm(f => ({ ...f, role: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2">
                                                             <option value="member">Member</option>
@@ -1112,7 +1122,7 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                                                                 if (d.message === 'success') {
                                                                     toast.showToast('✅ Co-founder added', 'success');
                                                                     setShowAddAdmin(false);
-                                                                    setNewAdminForm({ name: '', email: '', role: 'member', can_manage_blogs: false, can_manage_experiments: false });
+                                                                    setNewAdminForm({ name: '', email: '', password: '', role: 'member', can_manage_blogs: false, can_manage_experiments: false });
                                                                     fetchAdminUsers();
                                                                 } else {
                                                                     toast.showToast('Error: ' + d.error, 'error');
