@@ -19,9 +19,9 @@ const sqliteDb = require('./db.cjs');
 const sqliteQuery = (text, params) => {
     return new Promise((resolve, reject) => {
         let sql = text.replace(/\$\d+/g, '?');
-        const hasReturningId = /RETURNING\s+id/i.test(sql);
-        if (hasReturningId) {
-            sql = sql.replace(/RETURNING\s+id/i, '');
+        const hasReturning = /RETURNING\s+/i.test(sql);
+        if (hasReturning) {
+            sql = sql.replace(/RETURNING\s+[\s\S]*$/i, '');
         }
 
         const command = sql.trim().split(' ')[0].toUpperCase();
@@ -43,7 +43,7 @@ const sqliteQuery = (text, params) => {
                     reject(err);
                 } else {
                     const result = { rows: [], rowCount: this.changes };
-                    if (command === 'INSERT' && hasReturningId) {
+                    if (command === 'INSERT' && hasReturning) {
                         result.rows.push({ id: this.lastID });
                     }
                     resolve(result);

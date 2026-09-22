@@ -643,12 +643,32 @@ app.post('/api/admin-users', async (req, res) => {
         const hashedPassword = await bcrypt.hash(userPassword, 12);
         const granter = user.name || user.email;
 
-        const result = await pool.query(
-            'INSERT INTO admin_users (name, email, password, role, image, can_manage_blogs, can_manage_experiments, blog_granted_by, experiment_granted_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, name, email, role, image, can_manage_blogs, can_manage_experiments, blog_granted_by, experiment_granted_by',
+        const insertRes = await pool.query(
+            'INSERT INTO admin_users (name, email, password, role, image, can_manage_blogs, can_manage_experiments, blog_granted_by, experiment_granted_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
             [name || '', email, hashedPassword, roleValue, '', blogsFlag, exFlag, blogsFlag ? granter : '', exFlag ? granter : '']
         );
 
-        const created = result.rows[0];
+        let created;
+        const newId = insertRes.rows[0]?.id;
+        if (newId) {
+            const fetched = await pool.query('SELECT * FROM admin_users WHERE id = $1', [newId]);
+            created = fetched.rows[0];
+        }
+
+        if (!created) {
+            created = {
+                id: newId || 0,
+                name: name || '',
+                email,
+                role: roleValue,
+                image: '',
+                can_manage_blogs: blogsFlag,
+                can_manage_experiments: exFlag,
+                blog_granted_by: blogsFlag ? granter : '',
+                experiment_granted_by: exFlag ? granter : ''
+            };
+        }
+
         res.json({
             "message": "success",
             "data": formatUserResponse(created)
