@@ -622,26 +622,25 @@ const ProofSection = () => {
 };
 
 const TestimonialsSection = () => {
-  const testimonials = [
-    {
-      name: "Venkatesan Dhakshinamurthy",
-      role: "Founder, Veba Systems, Chennai",
-      content: "V2V helped us develop an IoT-based server hardware health monitoring system with firmware integration. Their innovative approach and technical expertise were outstanding.",
-      rating: 5,
-    },
-    {
-      name: "Dr. B.Perumal",
-      role: "Founder, PMD Systems, Virudhunagar",
-      content: "We worked with V2V to redesign a LoRa-based IoT system for pond monitoring, complete with AI-driven suggestions for farmers. Their solutions are practical and impactful.",
-      rating: 5,
-    },
-    {
-      name: "Ashok",
-      role: "VP Engineering, FutureSystems",
-      content: "The team at V2V delivered beyond our expectations. Their commitment to quality and innovation is evident in every project they undertake.",
-      rating: 5,
-    },
-  ];
+  const [testimonialsData, setTestimonialsData] = useState<{
+    eyebrow: string;
+    title: string;
+    description: string;
+    items: { name: string; role: string; content: string; rating: number }[];
+  }>(HOMEPAGE_DEFAULTS.testimonials as any);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.testimonials) {
+          setTestimonialsData(data.data.testimonials);
+        }
+      })
+      .catch((err) => console.error("Error loading testimonials:", err));
+  }, []);
+
+  const testimonials = testimonialsData.items || HOMEPAGE_DEFAULTS.testimonials.items;
 
   return (
     <section id="testimonials" className="py-24 bg-background">
@@ -655,11 +654,11 @@ const TestimonialsSection = () => {
             transition={{ duration: 0.6 }}
           >
             <Star className="w-4 h-4" />
-            TESTIMONIALS
+            {testimonialsData.eyebrow || "TESTIMONIALS"}
           </motion.span>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">What Our Clients Say</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">{testimonialsData.title || "What Our Clients Say"}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Trusted by leading organizations across industries.
+            {testimonialsData.description || "Trusted by leading organizations across industries."}
           </p>
         </div>
 
