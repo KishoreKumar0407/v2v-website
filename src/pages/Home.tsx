@@ -76,6 +76,37 @@ const SectionArrow = ({ target }: { target: string }) => (
 );
 
 const HeroSection = () => {
+  const [heroData, setHeroData] = useState<{
+    title: string;
+    description: string;
+  }>(HOMEPAGE_DEFAULTS.hero as any);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.hero) {
+          setHeroData(data.data.hero);
+        }
+      })
+      .catch((err) => console.error("Error loading hero content:", err));
+  }, []);
+
+  const renderHeroTitle = (title: string) => {
+    if (!title) return <>Transforming <span className="text-primary">Innovation</span> into Reality</>;
+    if (title.includes("Innovation")) {
+      const parts = title.split("Innovation");
+      return (
+        <>
+          {parts[0]}
+          <span className="text-primary">Innovation</span>
+          {parts[1]}
+        </>
+      );
+    }
+    return title;
+  };
+
   return (
     <section
       className="relative w-full overflow-hidden pb-10 pt-32 font-light text-white antialiased md:pb-16 md:pt-20 bg-background"
@@ -117,10 +148,10 @@ const HeroSection = () => {
             />
           </div>
           <h1 className="mx-auto mb-6 max-w-4xl text-4xl font-light md:text-5xl lg:text-7xl">
-            Transforming <span className="text-primary">Innovation</span> into Reality
+            {renderHeroTitle(heroData.title)}
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-white/60 md:text-xl">
-            V2V focuses on identifying real-world problems, developing innovative solutions through deep R&D, and transferring these technologies to industries and government bodies.
+            {heroData.description || "V2V focuses on identifying real-world problems, developing innovative solutions through deep R&D, and transferring these technologies to industries and government bodies."}
           </p>
 
           <div className="mb-10 sm:mb-0 flex flex-col items-center justify-center gap-4 sm:flex-row">
