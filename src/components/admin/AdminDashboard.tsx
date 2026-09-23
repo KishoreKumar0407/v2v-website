@@ -380,6 +380,27 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
         } catch (e) { console.error(e); }
     };
 
+    const deleteAdminUser = async (adminUser: AdminUser) => {
+        if (!user) return;
+        if (!confirm(`Are you sure you want to delete co-founder "${adminUser.name || adminUser.email}"? This will revoke all their access.`)) return;
+        try {
+            const r = await fetch(`${API_BASE_URL}/api/admin-users/${adminUser.id}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+            const d = await r.json();
+            if (d.message === 'success') {
+                toast.showToast(`✅ Deleted co-founder ${adminUser.name || adminUser.email}`, 'success');
+                fetchAdminUsers();
+            } else {
+                toast.showToast('Error deleting co-founder: ' + d.error, 'error');
+            }
+        } catch (e) {
+            console.error('Delete admin user failed:', e);
+            toast.showToast('Server error deleting co-founder', 'error');
+        }
+    };
+
     const updateAdminPermissions = async (id: number, canManageBlogs: boolean, canManageExperiments: boolean) => {
         if (!user) return false;
         setPermissionSavingId(id);
@@ -976,6 +997,15 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                                                         >
                                                             <Check className="w-3.5 h-3.5" />
                                                             {isSaving ? 'Saving...' : 'Save'}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => deleteAdminUser(admin)}
+                                                            className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold text-red-300 bg-red-950/60 border border-red-500/40 hover:bg-red-900/80 hover:text-white transition-all cursor-pointer"
+                                                            title="Delete this co-founder"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            Delete
                                                         </button>
                                                     </div>
                                                 </div>

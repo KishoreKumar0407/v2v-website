@@ -753,6 +753,39 @@ app.put('/api/admin-users/:id/permissions', async (req, res) => {
     }
 });
 
+// DELETE an admin user / co-founder (Main Admin only)
+app.delete('/api/admin-users/:id', async (req, res) => {
+    const user = await requireMainAdmin(req, res);
+    if (!user) return;
+
+    const { id } = req.params;
+
+    try {
+        const target = await pool.query('SELECT id, email, role FROM admin_users WHERE id = $1', [id]);
+        if (target.rows.length === 0) {
+            return res.status(404).json({ "error": "Admin user not found." });
+        }
+
+        const targetUser = target.rows[0];
+        if (parseInt(id, 10) === user.id) {
+            return res.status(400).json({ "error": "You cannot delete your own account." });
+        }
+
+        if ((targetUser.role || '').toUpperCase() === 'MAIN_ADMIN') {
+            return res.status(400).json({ "error": "Main Admin user cannot be deleted." });
+        }
+
+        await pool.query('DELETE FROM custom_manager_permissions WHERE admin_user_id = $1', [id]).catch(() => {});
+        await pool.query('DELETE FROM manager_access_requests WHERE admin_user_id = $1', [id]).catch(() => {});
+        await pool.query('DELETE FROM admin_users WHERE id = $1', [id]);
+
+        res.json({ "message": "success" });
+    } catch (err) {
+        console.error('Error deleting admin user:', err);
+        res.status(400).json({ "error": err.message });
+    }
+});
+
 // SET / RESET admin user password (Main Admin only)
 app.post('/api/admin-users/set-password', async (req, res) => {
     const user = await requireMainAdmin(req, res);
