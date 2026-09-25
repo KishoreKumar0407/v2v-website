@@ -45,7 +45,7 @@ const isTruthy = (v: unknown) => v === true || v === 1 || v === '1';
 const emptyBlog = { title: '', description: '', content: '', image: '', category: 'V2V Insights', author: 'V2V Tech' };
 const emptyProject = { name: '', technicalName: '', description: '', image: '', status: 'In Progress', completion: 0 };
 
-const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blogs' | 'experiments' | 'faqs' | 'services' | 'capabilities' }) => {
+const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blogs' | 'experiments' | 'faqs' | 'services' | 'capabilities' | 'our-team' }) => {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [blogs, setBlogs] = useState<Blog[]>([]);
     const [pendingUsers, setPendingUsers] = useState<PendingRegistration[]>([]);
@@ -1565,8 +1565,8 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                     </motion.div>
                 )}
                 {/* Homepage Content Management (Our Capabilities & Sections) */}
-                {(focusSection === 'all' || focusSection === 'capabilities') && (
-                    <HomepageContentManager user={user} />
+                {(focusSection === 'all' || focusSection === 'capabilities' || focusSection === 'our-team') && (
+                    <HomepageContentManager user={user} defaultOpenSection={focusSection === 'our-team' ? 'our_team' : null} />
                 )}
 
                 {/* FAQ Management */}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Globe, FlaskConical, Plus, HelpCircle, Briefcase, Home } from 'lucide-react';
+import { LayoutDashboard, Globe, FlaskConical, Plus, HelpCircle, Briefcase, Home, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_BASE_URL, getAuthHeaders } from '@/lib/apiConfig';
 import { ManagerDefinition } from './managerTypes';
@@ -63,8 +63,8 @@ export default function AdminManagerNav({ user }: Props) {
                     <LayoutDashboard className="w-4 h-4 shrink-0" /> Dashboard
                 </Link>
 
-                <Link to="/admin/capabilities-manager" className={linkClass('/admin/capabilities-manager')}>
-                    <Home className="w-4 h-4 shrink-0" /> Capabilities Manager
+                <Link to="/admin/our-team-manager" className={linkClass('/admin/our-team-manager')}>
+                    <Users className="w-4 h-4 shrink-0" /> Our Team & Homepage Manager
                 </Link>
 
                 <Link to="/admin/faq-manager" className={linkClass('/admin/faq-manager')}>

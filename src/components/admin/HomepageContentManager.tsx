@@ -84,12 +84,12 @@ function ServiceImageUploadInput({ value, onChange }: { value: string; onChange:
   );
 }
 
-export default function HomepageContentManager({ user }: Props) {
+export default function HomepageContentManager({ user, defaultOpenSection }: Props & { defaultOpenSection?: string | null }) {
   const toast = useToast();
   const [content, setContent] = useState<Content>((HOMEPAGE_DEFAULTS as unknown) as Content);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
-  const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(defaultOpenSection || null);
 
   useEffect(() => {
     if (!user) return;

@@ -128,6 +128,11 @@ const App = () => {
             <AdminDashboard focusSection="all" />
           </ToastProvider>
         } />
+        <Route path="/admin/our-team-manager" element={
+          <ToastProvider>
+            <AdminDashboard focusSection="our-team" />
+          </ToastProvider>
+        } />
         <Route path="/admin/capabilities-manager" element={
           <ToastProvider>
             <AdminDashboard focusSection="capabilities" />
