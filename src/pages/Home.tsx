@@ -331,56 +331,30 @@ const DetailedServicesSection = () => {
 };
 
 const AboutUsSection = () => {
-  const [teamMembers, setTeamMembers] = useState([
-    {
-      email: "arunsekar.v2v@gmail.com",
-      name: "Arun S",
-      role: "Founder (Vision & Strategic Leadership)",
-      bio: "Provides the overall vision and strategic direction for V2V. Leverages strong industry connections.",
-      image: "/team/arun.jpg",
-      linkedin: "https://www.linkedin.com/in/arun-sekar-7617b1253/",
-    },
-    {
-      email: "sivaramireddy.v2v@gmail.com",
-      name: "Siva Rami Reddy",
-      role: "Hardware R&D Lead",
-      bio: "Leads the design, development, and prototyping of innovative hardware solutions.",
-      image: "/team/sivarami.jpg",
-      linkedin: "https://www.linkedin.com/in/sivaramireddy-venna-37a3661a1/",
-    },
-    {
-      email: "phravin.v2v@gmail.com",
-      name: "Phravin S",
-      role: "Software R&D Lead",
-      bio: "Oversees software development and digital innovation. Focuses on creating intelligent systems.",
-      image: "/team/phravin.jpg",
-      linkedin: "https://www.linkedin.com/in/phravin-s-467503252",
-    },
-    {
-      email: "mareeswaran.v2v@gmail.com",
-      name: "Mareeswaran V",
-      role: "Business & Partnerships Lead",
-      bio: "Heads business strategy, market engagement, and partnership development.",
-      image: "/team/Mareeswaran.jpg",
-      linkedin: "https://www.linkedin.com/in/mareeswaran-v-482524306?",
-    },
-    {
-      email: "sivagurunathan.v2v@gmail.com",
-      name: "Sivagurunathan",
-      role: "Finance & Operations Lead",
-      bio: "Manages financial planning, budgeting, and operational efficiency.",
-      image: "/team/sivagurunathan.jpg",
-      linkedin: "https://www.linkedin.com/in/sivagurunathan-rajasekar-2386bb344/",
-    },
-    {
-      email: "jbavanieswaran.v2v@gmail.com",
-      name: "Bavanieswaran J",
-      role: "Social media & Outreach Lead",
-      bio: "Leads Brand Communication, digital presence, and outreach initiatives.",
-      image: "/team/bavanies.jpg",
-      linkedin: "https://www.linkedin.com/in/bavanieswaran-j-2a0621268",
-    },
-  ]);
+  const [ourTeamData, setOurTeamData] = useState<{
+    eyebrow: string;
+    title: string;
+    description: string;
+    items: {
+      email?: string;
+      name: string;
+      role: string;
+      bio: string;
+      image: string;
+      linkedin?: string;
+    }[];
+  }>(HOMEPAGE_DEFAULTS.our_team as any);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/homepage-content`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.our_team) {
+          setOurTeamData(data.data.our_team);
+        }
+      })
+      .catch((err) => console.error("Error loading our team content:", err));
+  }, []);
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -390,10 +364,11 @@ const AboutUsSection = () => {
         const d = await r.json();
         if (d.data) {
           const dbUsers: Array<{ email: string; name: string; image: string; role: string }> = d.data;
-          setTeamMembers((prevMembers) =>
-            prevMembers.map((m) => {
+          setOurTeamData((prev) => ({
+            ...prev,
+            items: prev.items.map((m) => {
               const matched = dbUsers.find(
-                (u) => String(u.email).toLowerCase() === String(m.email).toLowerCase()
+                (u) => m.email && String(u.email).toLowerCase() === String(m.email).toLowerCase()
               );
               if (matched && matched.image) {
                 return {
@@ -403,8 +378,8 @@ const AboutUsSection = () => {
                 };
               }
               return m;
-            })
-          );
+            }),
+          }));
         }
       } catch (e) {
         console.error("Failed to fetch dynamic team photos", e);
@@ -413,8 +388,8 @@ const AboutUsSection = () => {
     fetchTeam();
   }, []);
 
-  // Duplicate the list for infinite scroll
-  const scrollingMembers = [...teamMembers, ...teamMembers];
+  const teamMembers = ourTeamData.items || HOMEPAGE_DEFAULTS.our_team.items;
+  const scrollingMembers = teamMembers.length > 0 ? [...teamMembers, ...teamMembers] : [];
 
   return (
     <section id="about" className="py-20 bg-background overflow-hidden relative">
@@ -428,11 +403,11 @@ const AboutUsSection = () => {
             transition={{ duration: 0.6 }}
           >
             <Users className="w-3.5 h-3.5" />
-            OUR TEAM
+            {ourTeamData.eyebrow || "OUR TEAM"}
           </motion.span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">Brains Behind the Mission</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">{ourTeamData.title || "Brains Behind the Mission"}</h2>
           <p className="text-muted-foreground text-sm max-w-xl mx-auto">
-            Meet the talented individuals behind our mission to transform innovation into reality.
+            {ourTeamData.description || "Meet the talented individuals behind our mission to transform innovation into reality."}
           </p>
         </div>
       </div>
@@ -457,7 +432,7 @@ const AboutUsSection = () => {
               <Card className="h-full hover:shadow-lg transition-all duration-300 overflow-hidden bg-card backdrop-blur-sm border-white/5 group">
                 <div className="aspect-square overflow-hidden relative">
                   <img
-                    src={member.image}
+                    src={member.image || "/team/default.jpg"}
                     alt={member.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -472,16 +447,18 @@ const AboutUsSection = () => {
                   <p className="text-[11px] leading-relaxed text-muted-foreground mb-3 line-clamp-2">
                     {member.bio}
                   </p>
-                  <a
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:underline transition-all"
-                  >
-                    <Linkedin className="w-3 h-3" />
-                    LinkedIn
-                    <ArrowRight className="w-2.5 h-2.5 transition-transform group-hover:translate-x-0.5" />
-                  </a>
+                  {member.linkedin && (
+                    <a
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:underline transition-all"
+                    >
+                      <Linkedin className="w-3 h-3" />
+                      LinkedIn
+                      <ArrowRight className="w-2.5 h-2.5 transition-transform group-hover:translate-x-0.5" />
+                    </a>
+                  )}
                 </CardContent>
               </Card>
             </div>

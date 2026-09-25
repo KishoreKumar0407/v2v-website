@@ -15,7 +15,11 @@ type DetailedServices = { eyebrow: string; title: string; description: string; i
 type TrackRecord = { title: string; description: string; stats: { value: number; label: string; suffix: string }[] };
 type Testimonials = { eyebrow: string; title: string; description: string; items: { name: string; role: string; content: string; rating: number }[] };
 type FooterContact = { address: string; email: string; phone: string };
-type Content = { hero: Hero; capabilities: Capabilities; detailed_services: DetailedServices; track_record: TrackRecord; footer_contact: FooterContact; testimonials: Testimonials };
+type OurTeamMember = { name: string; role: string; bio: string; image: string; linkedin: string; email?: string };
+type OurTeam = { eyebrow: string; title: string; description: string; items: OurTeamMember[] };
+type Content = { hero: Hero; capabilities: Capabilities; detailed_services: DetailedServices; track_record: TrackRecord; footer_contact: FooterContact; testimonials: Testimonials; our_team: OurTeam };
+
+const DEFAULT_OUR_TEAM = HOMEPAGE_DEFAULTS.our_team as unknown as OurTeam;
 
 interface Props { user: { role: string; email: string; name: string } | null; }
 
@@ -185,6 +189,54 @@ export default function HomepageContentManager({ user }: Props) {
               <TextFields value={content.testimonials} onChange={v => setContent(c => ({ ...c, testimonials: v }))} />
               <div className="space-y-3">{content.testimonials.items.map((item, i) => <div key={i} className="rounded-xl border border-border/50 p-4 space-y-2"><div className="flex justify-between"><b>Testimonial {i + 1}</b><button onClick={() => setContent(c => ({ ...c, testimonials: { ...c.testimonials, items: c.testimonials.items.filter((_, x) => x !== i) } }))} className="text-red-400"><Trash2 className="w-4 h-4" /></button></div><div className="grid md:grid-cols-2 gap-2"><input value={item.name} onChange={e => setContent(c => updateTestimonial(c, i, { name: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Name" /><input value={item.role} onChange={e => setContent(c => updateTestimonial(c, i, { role: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Role" /></div><textarea value={item.content} onChange={e => setContent(c => updateTestimonial(c, i, { content: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-24" placeholder="Testimonial" /><input type="number" min={1} max={5} value={item.rating} onChange={e => setContent(c => updateTestimonial(c, i, { rating: Number(e.target.value) }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Rating" /></div>)}<Button variant="outline" onClick={() => setContent(c => ({ ...c, testimonials: { ...c.testimonials, items: [...c.testimonials.items, { name: '', role: '', content: '', rating: 5 }] } }))}><Plus className="w-4 h-4 mr-2" />Add Testimonial</Button></div>
             </SectionCard>
+
+            <SectionCard title="Our Team" open={open === 'our_team'} onOpen={() => setOpen(open === 'our_team' ? null : 'our_team')} onSave={() => save('our_team')} saving={saving === 'our_team'}>
+              <TextFields value={content.our_team || DEFAULT_OUR_TEAM} onChange={v => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), ...v } }))} />
+              <div className="space-y-4 pt-2">
+                {(content.our_team?.items || DEFAULT_OUR_TEAM.items).map((item, i) => (
+                  <div key={i} className="rounded-xl border border-border/50 p-4 space-y-3 bg-card/30">
+                    <div className="flex justify-between items-center">
+                      <b className="text-violet-300">Team Member {i + 1} ({item.name || 'Unnamed'})</b>
+                      <button
+                        type="button"
+                        onClick={() => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), items: (c.our_team?.items || DEFAULT_OUR_TEAM.items).filter((_, x) => x !== i) } }))}
+                        className="text-red-400 hover:text-red-300 flex items-center gap-1 text-xs"
+                      >
+                        <Trash2 className="w-4 h-4" /> Remove
+                      </button>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Name</label>
+                        <input value={item.name} onChange={e => setContent(c => updateTeamMember(c, i, { name: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Full Name" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Role / Position</label>
+                        <input value={item.role} onChange={e => setContent(c => updateTeamMember(c, i, { role: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Role / Position" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground block mb-1">Bio / Description</label>
+                      <textarea value={item.bio} onChange={e => setContent(c => updateTeamMember(c, i, { bio: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-20" placeholder="Brief bio" />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">LinkedIn Profile URL</label>
+                        <input value={item.linkedin} onChange={e => setContent(c => updateTeamMember(c, i, { linkedin: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="https://www.linkedin.com/in/..." />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Email (Optional, for admin photo sync)</label>
+                        <input value={item.email || ''} onChange={e => setContent(c => updateTeamMember(c, i, { email: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="email@v2vtech.com" />
+                      </div>
+                    </div>
+                    <ServiceImageUploadInput value={item.image} onChange={v => setContent(c => updateTeamMember(c, i, { image: v }))} />
+                  </div>
+                ))}
+                <Button type="button" variant="outline" onClick={() => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), items: [...(c.our_team?.items || DEFAULT_OUR_TEAM.items), { name: '', role: '', bio: '', image: '/team/default.jpg', linkedin: '', email: '' }] } }))}>
+                  <Plus className="w-4 h-4 mr-2" /> Add Team Member
+                </Button>
+              </div>
+            </SectionCard>
           </>}
         </CardContent>
       </Card>
@@ -205,3 +257,9 @@ function TextFields<T extends { eyebrow?: string; title: string; description: st
 function updateCapability(c: Content, i: number, patch: Partial<Capabilities['items'][number]>): Content { const next = clone(c); next.capabilities.items[i] = { ...next.capabilities.items[i], ...patch }; return next; }
 function updateService(c: Content, i: number, patch: Partial<DetailedServices['items'][number]>): Content { const next = clone(c); next.detailed_services.items[i] = { ...next.detailed_services.items[i], ...patch }; return next; }
 function updateTestimonial(c: Content, i: number, patch: Partial<Testimonials['items'][number]>): Content { const next = clone(c); next.testimonials.items[i] = { ...next.testimonials.items[i], ...patch }; return next; }
+function updateTeamMember(c: Content, i: number, patch: Partial<OurTeamMember>): Content {
+  const next = clone(c);
+  if (!next.our_team) next.our_team = clone(DEFAULT_OUR_TEAM);
+  next.our_team.items[i] = { ...next.our_team.items[i], ...patch };
+  return next;
+}

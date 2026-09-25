@@ -75,6 +75,39 @@ const Team = () => {
     },
   ]);
 
+  const [teamHeader, setTeamHeader] = useState({
+    title: "Brains Behind the Mission",
+    description: "Our team brings together research, engineering, strategy, and business expertise to turn ambitious ideas into practical solutions. Each member contributes unique skills, experience, and perspective, helping us build technology that is meaningful, scalable, and impactful."
+  });
+
+  useEffect(() => {
+    const fetchHomepageTeam = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/homepage-content`);
+        const data = await res.json();
+        if (data?.data?.our_team) {
+          const ot = data.data.our_team;
+          if (ot.title) setTeamHeader(prev => ({ ...prev, title: ot.title }));
+          if (ot.description) setTeamHeader(prev => ({ ...prev, description: ot.description }));
+          if (ot.items && Array.isArray(ot.items) && ot.items.length > 0) {
+            setTeamMembers(ot.items.map((item: any) => ({
+              email: item.email || '',
+              name: item.name || '',
+              role: item.role || '',
+              bio: item.bio || '',
+              image: item.image || '/team/default.jpg',
+              linkedin: item.linkedin || '',
+              quote: item.quote || 'Turning problems into real-world solutions.'
+            })));
+          }
+        }
+      } catch (err) {
+        console.error("Error loading team content:", err);
+      }
+    };
+    fetchHomepageTeam();
+  }, []);
+
   useEffect(() => {
     const fetchTeam = async () => {
       try {
@@ -85,7 +118,7 @@ const Team = () => {
           const dbUsers: Array<{ email: string; name: string; image: string; role: string }> = d.data;
           setTeamMembers(prevMembers => {
             const updated = prevMembers.map(m => {
-              const matched = dbUsers.find(u => String(u.email).toLowerCase() === String(m.email).toLowerCase());
+              const matched = dbUsers.find(u => m.email && String(u.email).toLowerCase() === String(m.email).toLowerCase());
               if (matched) {
                 return {
                   ...m,
@@ -96,22 +129,6 @@ const Team = () => {
               }
               return m;
             });
-
-            // Handle newly added admins
-            dbUsers.forEach(dbu => {
-              const exists = prevMembers.some(m => String(m.email).toLowerCase() === String(dbu.email).toLowerCase());
-              if (!exists) {
-                updated.push({
-                  email: dbu.email,
-                  name: dbu.name || dbu.email.split('@')[0],
-                  role: dbu.role === 'MAIN_ADMIN' ? 'Main Administrator' : 'Co-Founder',
-                  bio: 'Vision2Value core team member.',
-                  image: dbu.image || '/team/default.jpg',
-                  quote: 'Turning problems into real-world solutions.'
-                });
-              }
-            });
-
             return updated;
           });
         }
@@ -145,9 +162,9 @@ const Team = () => {
               className="h-24 w-24 object-contain drop-shadow-[0_0_15px_rgba(139,92,246,0.6)]"
             />
           </div>
-          <h1 className="mb-6 text-4xl font-bold md:text-5xl">Brains Behind the Mission</h1>
+          <h1 className="mb-6 text-4xl font-bold md:text-5xl">{teamHeader.title}</h1>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Our team brings together research, engineering, strategy, and business expertise to turn ambitious ideas into practical solutions. Each member contributes unique skills, experience, and perspective, helping us build technology that is meaningful, scalable, and impactful.
+            {teamHeader.description}
           </p>
         </motion.div>
 
