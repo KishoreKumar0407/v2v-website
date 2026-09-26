@@ -1088,7 +1088,7 @@ app.get('/api/manager-access-requests/pending', async (req, res) => {
         const result = await pool.query(
             `SELECT r.*, u.name AS requester_name, u.email AS requester_email, f.name AS manager_name
              FROM manager_access_requests r
-             INNER JOIN admin_users u ON u.id = r.admin_user_id
+             LEFT JOIN admin_users u ON u.id = r.admin_user_id
              LEFT JOIN dynamic_features f ON f.id = r.manager_id
              WHERE r.status = 'pending'
              ORDER BY r.requested_at DESC`
