@@ -220,6 +220,7 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
 
     const approveManagerAccess = async (id: number) => {
         if (!user) return;
+        setManagerAccessRequests(prev => prev.filter(r => r.id !== id));
         try {
             const r = await fetch(`${API_BASE_URL}/api/manager-access-requests/${id}/approve`, {
                 method: 'POST',
@@ -234,14 +235,21 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                 fetchAdminUsers();
                 fetchManagerPermissions(user);
                 toast.showToast('✅ Access request approved', 'success');
-            } else toast.showToast('Error: ' + d.error, 'error');
-        } catch (e) { console.error(e); }
+            } else {
+                fetchManagerAccessRequests();
+                toast.showToast('Error: ' + d.error, 'error');
+            }
+        } catch (e) {
+            fetchManagerAccessRequests();
+            console.error(e);
+        }
     };
 
     const rejectManagerAccess = async (id: number) => {
         if (!user) return;
         const reason = prompt('Optional reason for rejection:');
         if (reason === null) return;
+        setManagerAccessRequests(prev => prev.filter(r => r.id !== id));
         try {
             const r = await fetch(`${API_BASE_URL}/api/manager-access-requests/${id}/reject`, {
                 method: 'POST',
@@ -255,8 +263,14 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
             if (d.message === 'success') {
                 fetchManagerAccessRequests();
                 toast.showToast('Request rejected', 'success');
-            } else toast.showToast('Error: ' + d.error, 'error');
-        } catch (e) { console.error(e); }
+            } else {
+                fetchManagerAccessRequests();
+                toast.showToast('Error: ' + d.error, 'error');
+            }
+        } catch (e) {
+            fetchManagerAccessRequests();
+            console.error(e);
+        }
     };
 
     const fetchAdminUsers = async (currentUser?: AdminUser) => {
@@ -323,6 +337,7 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
 
     const approveUser = async (id: number, role: string = 'member') => {
         if (!user) return;
+        setPendingUsers(prev => prev.filter(p => p.id !== id));
         try {
             const r = await fetch(`${API_BASE_URL}/api/approve-registration`, {
                 method: 'POST',
@@ -337,8 +352,14 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                 fetchPendingUsers();
                 fetchAdminUsers();
                 toast.showToast('✅ Approved user', 'success');
-            } else toast.showToast('Error: ' + d.error, 'error');
-        } catch (e) { console.error(e); }
+            } else {
+                fetchPendingUsers();
+                toast.showToast('Error: ' + d.error, 'error');
+            }
+        } catch (e) {
+            fetchPendingUsers();
+            console.error(e);
+        }
     };
 
     const rejectUser = async (id: number) => {

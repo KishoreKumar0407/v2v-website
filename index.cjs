@@ -507,19 +507,17 @@ app.post('/api/approve-registration', async (req, res) => {
         // Remove from pending
         await pool.query('DELETE FROM pending_registrations WHERE id = $1', [id]);
 
-        // Send approval email
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: '✅ V2V Admin Access Approved',
-                html: `<h3>Welcome to V2V Admin, ${name}!</h3>
-                       <p>Your registration has been approved with role: <strong>${roleValue}</strong></p>
-                       <p>You can now login with your credentials.</p>`
-            });
-        } catch (mailError) {
+        // Send approval email in background (non-blocking)
+        transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: '✅ V2V Admin Access Approved',
+            html: `<h3>Welcome to V2V Admin, ${name}!</h3>
+                   <p>Your registration has been approved with role: <strong>${roleValue}</strong></p>
+                   <p>You can now login with your credentials.</p>`
+        }).catch(mailError => {
             console.error('Failed to send approval email:', mailError);
-        }
+        });
 
         res.json({ "message": "success" });
     } catch (err) {
@@ -544,20 +542,18 @@ app.post('/api/reject-registration', async (req, res) => {
 
         await pool.query('DELETE FROM pending_registrations WHERE id = $1', [id]);
 
-        // Send rejection email
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: '❌ V2V Admin Access Request Declined',
-                html: `<h3>Hello ${name},</h3>
-                       <p>Your request for V2V Admin access has been declined.</p>
-                       ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
-                       <p>If you believe this is an error, please contact the V2V team.</p>`
-            });
-        } catch (mailError) {
+        // Send rejection email in background (non-blocking)
+        transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: '❌ V2V Admin Access Request Declined',
+            html: `<h3>Hello ${name},</h3>
+                   <p>Your request for V2V Admin access has been declined.</p>
+                   ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+                   <p>If you believe this is an error, please contact the V2V team.</p>`
+        }).catch(mailError => {
             console.error('Failed to send rejection email:', mailError);
-        }
+        });
 
         res.json({ "message": "success" });
     } catch (err) {
@@ -1220,18 +1216,16 @@ app.post('/api/manager-access-requests/:id/approve', async (req, res) => {
         );
 
         const label = accessRequestLabel(request.request_type, request.manager_name);
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: request.requester_email,
-                subject: `✅ V2V Access Approved: ${label}`,
-                html: `<h3>Hello ${request.requester_name},</h3>
-                       <p>Your request for <strong>${label}</strong> access has been approved by ${granter}.</p>
-                       <p>You can now use this manager from your admin dashboard.</p>`
-            });
-        } catch (mailError) {
+        transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: request.requester_email,
+            subject: `✅ V2V Access Approved: ${label}`,
+            html: `<h3>Hello ${request.requester_name},</h3>
+                   <p>Your request for <strong>${label}</strong> access has been approved by ${granter}.</p>
+                   <p>You can now use this manager from your admin dashboard.</p>`
+        }).catch(mailError => {
             console.error('Failed to send approval email:', mailError);
-        }
+        });
 
         res.json({ message: 'success' });
     } catch (err) {
@@ -1251,7 +1245,7 @@ app.post('/api/manager-access-requests/:id/reject', async (req, res) => {
         const reqResult = await pool.query(
             `SELECT r.*, u.email AS requester_email, u.name AS requester_name, f.name AS manager_name
              FROM manager_access_requests r
-             INNER JOIN admin_users u ON u.id = r.admin_user_id
+             LEFT JOIN admin_users u ON u.id = r.admin_user_id
              LEFT JOIN dynamic_features f ON f.id = r.manager_id
              WHERE r.id = $1 AND r.status = 'pending'`,
             [id]
@@ -1269,18 +1263,16 @@ app.post('/api/manager-access-requests/:id/reject', async (req, res) => {
         );
 
         const label = accessRequestLabel(request.request_type, request.manager_name);
-        try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: request.requester_email,
-                subject: `❌ V2V Access Request Declined: ${label}`,
-                html: `<h3>Hello ${request.requester_name},</h3>
-                       <p>Your request for <strong>${label}</strong> access has been declined.</p>
-                       ${rejectionReason ? `<p><strong>Reason:</strong> ${rejectionReason}</p>` : ''}`
-            });
-        } catch (mailError) {
+        transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: request.requester_email,
+            subject: `❌ V2V Access Request Declined: ${label}`,
+            html: `<h3>Hello ${request.requester_name},</h3>
+                   <p>Your request for <strong>${label}</strong> access has been declined.</p>
+                   ${rejectionReason ? `<p><strong>Reason:</strong> ${rejectionReason}</p>` : ''}`
+        }).catch(mailError => {
             console.error('Failed to send rejection email:', mailError);
-        }
+        });
 
         res.json({ message: 'success' });
     } catch (err) {
