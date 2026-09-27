@@ -1481,7 +1481,7 @@ app.get('/api/homepage-content/:key', async (req, res) => {
 
 app.put('/api/homepage-content/:key', async (req, res) => {
     const key = req.params.key;
-    const user = (key === 'our_team' || key === 'ourTeam')
+    const user = (key === 'our_team' || key === 'ourTeam' || key === 'testimonials')
         ? await requireMainAdmin(req, res)
         : await requireAdminUser(req, res);
     if (!user) return;
