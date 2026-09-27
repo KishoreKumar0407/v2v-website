@@ -85,7 +85,7 @@ const getUserFromSessionToken = async (token) => {
     try {
         const session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
         if (!session.email || session.expiresAt < Date.now()) return null;
-        const result = await pool.query('SELECT * FROM admin_users WHERE email = $1', [session.email]);
+        const result = await pool.query('SELECT * FROM admin_users WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))', [session.email]);
         return result.rows[0] || null;
     } catch {
         return null;
