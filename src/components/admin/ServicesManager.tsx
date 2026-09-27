@@ -36,6 +36,10 @@ const emptyService = {
 };
 
 export default function ServicesManager({ user }: ServicesManagerProps) {
+  if (!user) return null;
+  const isMainAdmin = (user.email || '').toLowerCase() === 'arunsekar.v2v@gmail.com' || (user.role || '').toUpperCase() === 'MAIN_ADMIN';
+  if (!isMainAdmin) return null;
+
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

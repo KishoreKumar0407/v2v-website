@@ -69,13 +69,17 @@ export default function AdminManagerNav({ user }: Props) {
                     </Link>
                 )}
 
-                <Link to="/admin/faq-manager" className={linkClass('/admin/faq-manager')}>
-                    <HelpCircle className="w-4 h-4 shrink-0" /> FAQ Manager
-                </Link>
+                {isMainAdmin && (
+                    <Link to="/admin/faq-manager" className={linkClass('/admin/faq-manager')}>
+                        <HelpCircle className="w-4 h-4 shrink-0" /> FAQ Manager
+                    </Link>
+                )}
 
-                <Link to="/admin/services-manager" className={linkClass('/admin/services-manager')}>
-                    <Briefcase className="w-4 h-4 shrink-0" /> Service Manager
-                </Link>
+                {isMainAdmin && (
+                    <Link to="/admin/services-manager" className={linkClass('/admin/services-manager')}>
+                        <Briefcase className="w-4 h-4 shrink-0" /> Service Manager
+                    </Link>
+                )}
 
                 {canBlog && (
                     <Link to="/admin/blog-manager" className={linkClass('/admin/blog-manager')}>

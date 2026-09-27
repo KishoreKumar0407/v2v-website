@@ -1291,9 +1291,9 @@ app.get('/api/faqs', async (req, res) => {
     }
 });
 
-// POST create new FAQ (Authenticated Admin)
+// POST create new FAQ (Authenticated Main Admin)
 app.post('/api/faqs', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const user = await requireMainAdmin(req, res);
     if (!user) return;
 
     const { question, answer, display_order } = req.body;
@@ -1313,9 +1313,9 @@ app.post('/api/faqs', async (req, res) => {
     }
 });
 
-// PUT update FAQ (Authenticated Admin)
+// PUT update FAQ (Authenticated Main Admin)
 app.put('/api/faqs/:id', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const user = await requireMainAdmin(req, res);
     if (!user) return;
 
     const { question, answer, display_order } = req.body;
@@ -1335,9 +1335,9 @@ app.put('/api/faqs/:id', async (req, res) => {
     }
 });
 
-// DELETE FAQ (Authenticated Admin)
+// DELETE FAQ (Authenticated Main Admin)
 app.delete('/api/faqs/:id', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const user = await requireMainAdmin(req, res);
     if (!user) return;
 
     try {
@@ -1381,9 +1381,9 @@ app.get('/api/footer-services', async (req, res) => {
     }
 });
 
-// POST create new footer service (Authenticated Admin)
+// POST create new footer service (Authenticated Main Admin)
 app.post('/api/footer-services', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const user = await requireMainAdmin(req, res);
     if (!user) return;
 
     const { name, href, image, display_order } = req.body;
@@ -1405,9 +1405,9 @@ app.post('/api/footer-services', async (req, res) => {
     }
 });
 
-// PUT update footer service (Authenticated Admin)
+// PUT update footer service (Authenticated Main Admin)
 app.put('/api/footer-services/:id', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const user = await requireMainAdmin(req, res);
     if (!user) return;
 
     const { name, href, image, display_order } = req.body;
@@ -1429,9 +1429,9 @@ app.put('/api/footer-services/:id', async (req, res) => {
     }
 });
 
-// DELETE footer service (Authenticated Admin)
+// DELETE footer service (Authenticated Main Admin)
 app.delete('/api/footer-services/:id', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const user = await requireMainAdmin(req, res);
     if (!user) return;
 
     try {
