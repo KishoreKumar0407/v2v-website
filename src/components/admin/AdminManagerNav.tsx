@@ -63,8 +63,8 @@ export default function AdminManagerNav({ user }: Props) {
                     <LayoutDashboard className="w-4 h-4 shrink-0" /> Dashboard
                 </Link>
 
-                <Link to="/admin/our-team-manager" className={linkClass('/admin/our-team-manager')}>
-                    <Users className="w-4 h-4 shrink-0" /> Our Team & Homepage Manager
+                <Link to="/admin/homepage-manager" className={linkClass('/admin/homepage-manager')}>
+                    <Home className="w-4 h-4 shrink-0" /> Homepage Content Manager
                 </Link>
 
                 <Link to="/admin/faq-manager" className={linkClass('/admin/faq-manager')}>

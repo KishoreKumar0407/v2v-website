@@ -120,6 +120,8 @@ export default function HomepageContentManager({ user, defaultOpenSection }: Pro
 
   if (!user) return null;
 
+  const isMainAdmin = (user.role || '').toUpperCase() === 'MAIN_ADMIN' || (user.email || '').toLowerCase() === 'arunsekar.v2v@gmail.com';
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
       <Card className="border border-violet-500/30 bg-violet-950/10">
@@ -190,53 +192,55 @@ export default function HomepageContentManager({ user, defaultOpenSection }: Pro
               <div className="space-y-3">{content.testimonials.items.map((item, i) => <div key={i} className="rounded-xl border border-border/50 p-4 space-y-2"><div className="flex justify-between"><b>Testimonial {i + 1}</b><button onClick={() => setContent(c => ({ ...c, testimonials: { ...c.testimonials, items: c.testimonials.items.filter((_, x) => x !== i) } }))} className="text-red-400"><Trash2 className="w-4 h-4" /></button></div><div className="grid md:grid-cols-2 gap-2"><input value={item.name} onChange={e => setContent(c => updateTestimonial(c, i, { name: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Name" /><input value={item.role} onChange={e => setContent(c => updateTestimonial(c, i, { role: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Role" /></div><textarea value={item.content} onChange={e => setContent(c => updateTestimonial(c, i, { content: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-24" placeholder="Testimonial" /><input type="number" min={1} max={5} value={item.rating} onChange={e => setContent(c => updateTestimonial(c, i, { rating: Number(e.target.value) }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Rating" /></div>)}<Button variant="outline" onClick={() => setContent(c => ({ ...c, testimonials: { ...c.testimonials, items: [...c.testimonials.items, { name: '', role: '', content: '', rating: 5 }] } }))}><Plus className="w-4 h-4 mr-2" />Add Testimonial</Button></div>
             </SectionCard>
 
-            <SectionCard title="Our Team" open={open === 'our_team'} onOpen={() => setOpen(open === 'our_team' ? null : 'our_team')} onSave={() => save('our_team')} saving={saving === 'our_team'}>
-              <TextFields value={content.our_team || DEFAULT_OUR_TEAM} onChange={v => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), ...v } }))} />
-              <div className="space-y-4 pt-2">
-                {(content.our_team?.items || DEFAULT_OUR_TEAM.items).map((item, i) => (
-                  <div key={i} className="rounded-xl border border-border/50 p-4 space-y-3 bg-card/30">
-                    <div className="flex justify-between items-center">
-                      <b className="text-violet-300">Team Member {i + 1} ({item.name || 'Unnamed'})</b>
-                      <button
-                        type="button"
-                        onClick={() => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), items: (c.our_team?.items || DEFAULT_OUR_TEAM.items).filter((_, x) => x !== i) } }))}
-                        className="text-red-400 hover:text-red-300 flex items-center gap-1 text-xs"
-                      >
-                        <Trash2 className="w-4 h-4" /> Remove
-                      </button>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs text-muted-foreground block mb-1">Name</label>
-                        <input value={item.name} onChange={e => setContent(c => updateTeamMember(c, i, { name: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Full Name" />
+            {isMainAdmin && (
+              <SectionCard title="Our Team" open={open === 'our_team'} onOpen={() => setOpen(open === 'our_team' ? null : 'our_team')} onSave={() => save('our_team')} saving={saving === 'our_team'}>
+                <TextFields value={content.our_team || DEFAULT_OUR_TEAM} onChange={v => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), ...v } }))} />
+                <div className="space-y-4 pt-2">
+                  {(content.our_team?.items || DEFAULT_OUR_TEAM.items).map((item, i) => (
+                    <div key={i} className="rounded-xl border border-border/50 p-4 space-y-3 bg-card/30">
+                      <div className="flex justify-between items-center">
+                        <b className="text-violet-300">Team Member {i + 1} ({item.name || 'Unnamed'})</b>
+                        <button
+                          type="button"
+                          onClick={() => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), items: (c.our_team?.items || DEFAULT_OUR_TEAM.items).filter((_, x) => x !== i) } }))}
+                          className="text-red-400 hover:text-red-300 flex items-center gap-1 text-xs"
+                        >
+                          <Trash2 className="w-4 h-4" /> Remove
+                        </button>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-muted-foreground block mb-1">Name</label>
+                          <input value={item.name} onChange={e => setContent(c => updateTeamMember(c, i, { name: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Full Name" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground block mb-1">Role / Position</label>
+                          <input value={item.role} onChange={e => setContent(c => updateTeamMember(c, i, { role: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Role / Position" />
+                        </div>
                       </div>
                       <div>
-                        <label className="text-xs text-muted-foreground block mb-1">Role / Position</label>
-                        <input value={item.role} onChange={e => setContent(c => updateTeamMember(c, i, { role: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="Role / Position" />
+                        <label className="text-xs text-muted-foreground block mb-1">Bio / Description</label>
+                        <textarea value={item.bio} onChange={e => setContent(c => updateTeamMember(c, i, { bio: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-20" placeholder="Brief bio" />
                       </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground block mb-1">Bio / Description</label>
-                      <textarea value={item.bio} onChange={e => setContent(c => updateTeamMember(c, i, { bio: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm min-h-20" placeholder="Brief bio" />
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs text-muted-foreground block mb-1">LinkedIn Profile URL</label>
-                        <input value={item.linkedin} onChange={e => setContent(c => updateTeamMember(c, i, { linkedin: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="https://www.linkedin.com/in/..." />
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-muted-foreground block mb-1">LinkedIn Profile URL</label>
+                          <input value={item.linkedin} onChange={e => setContent(c => updateTeamMember(c, i, { linkedin: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="https://www.linkedin.com/in/..." />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground block mb-1">Email (Optional, for admin photo sync)</label>
+                          <input value={item.email || ''} onChange={e => setContent(c => updateTeamMember(c, i, { email: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="email@v2vtech.com" />
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground block mb-1">Email (Optional, for admin photo sync)</label>
-                        <input value={item.email || ''} onChange={e => setContent(c => updateTeamMember(c, i, { email: e.target.value }))} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" placeholder="email@v2vtech.com" />
-                      </div>
+                      <ServiceImageUploadInput value={item.image} onChange={v => setContent(c => updateTeamMember(c, i, { image: v }))} />
                     </div>
-                    <ServiceImageUploadInput value={item.image} onChange={v => setContent(c => updateTeamMember(c, i, { image: v }))} />
-                  </div>
-                ))}
-                <Button type="button" variant="outline" onClick={() => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), items: [...(c.our_team?.items || DEFAULT_OUR_TEAM.items), { name: '', role: '', bio: '', image: '/team/default.jpg', linkedin: '', email: '' }] } }))}>
-                  <Plus className="w-4 h-4 mr-2" /> Add Team Member
-                </Button>
-              </div>
-            </SectionCard>
+                  ))}
+                  <Button type="button" variant="outline" onClick={() => setContent(c => ({ ...c, our_team: { ...(c.our_team || DEFAULT_OUR_TEAM), items: [...(c.our_team?.items || DEFAULT_OUR_TEAM.items), { name: '', role: '', bio: '', image: '/team/default.jpg', linkedin: '', email: '' }] } }))}>
+                    <Plus className="w-4 h-4 mr-2" /> Add Team Member
+                  </Button>
+                </div>
+              </SectionCard>
+            )}
           </>}
         </CardContent>
       </Card>

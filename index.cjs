@@ -1480,10 +1480,12 @@ app.get('/api/homepage-content/:key', async (req, res) => {
 });
 
 app.put('/api/homepage-content/:key', async (req, res) => {
-    const user = await requireAdminUser(req, res);
+    const key = req.params.key;
+    const user = (key === 'our_team' || key === 'ourTeam')
+        ? await requireMainAdmin(req, res)
+        : await requireAdminUser(req, res);
     if (!user) return;
 
-    const key = req.params.key;
     const content = req.body.content !== undefined ? req.body.content : req.body;
     const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
 
