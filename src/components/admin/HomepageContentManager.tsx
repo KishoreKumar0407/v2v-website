@@ -119,8 +119,8 @@ export default function HomepageContentManager({ user, defaultOpenSection }: Pro
   };
 
   if (!user) return null;
-
-  const isMainAdmin = (user.email || '').toLowerCase() === 'arunsekar.v2v@gmail.com';
+  const isMainAdmin = (user.email || '').toLowerCase() === 'arunsekar.v2v@gmail.com' || (user.role || '').toUpperCase() === 'MAIN_ADMIN';
+  if (!isMainAdmin) return null;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
