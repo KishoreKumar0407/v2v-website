@@ -49,7 +49,7 @@ app.use((err, req, res, next) => {
 const isTruthy = (v) => v === true || v === 1 || v === '1' || v === 'true';
 
 const formatUserResponse = (user) => {
-    const isMainAdmin = (user.role || '').toUpperCase() === 'MAIN_ADMIN';
+    const isMainAdmin = (user.email || '').toLowerCase() === 'arunsekar.v2v@gmail.com';
     const canManageBlogs = isMainAdmin || isTruthy(user.can_manage_blogs);
     const canManageExperiments = isMainAdmin || isTruthy(user.can_manage_experiments);
     return {

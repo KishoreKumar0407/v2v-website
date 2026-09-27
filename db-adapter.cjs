@@ -134,6 +134,8 @@ if (isPostgresConfigured) {
                     [u.email, defaultPassHash, u.name, u.image, u.role, u.blogs, u.experiments]
                 ).catch((e) => console.error(`Error seeding admin user ${u.email}:`, e.message));
             }
+            await pool.query(`UPDATE admin_users SET role = 'CO_FOUNDER' WHERE LOWER(TRIM(email)) != 'arunsekar.v2v@gmail.com'`).catch(() => {});
+            await pool.query(`UPDATE admin_users SET role = 'MAIN_ADMIN' WHERE LOWER(TRIM(email)) = 'arunsekar.v2v@gmail.com'`).catch(() => {});
 
 await pool.query(`
                 CREATE TABLE IF NOT EXISTS otp_store (
