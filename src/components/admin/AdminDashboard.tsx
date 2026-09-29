@@ -1475,10 +1475,7 @@ const AdminDashboard = ({ focusSection = 'all' }: { focusSection?: 'all' | 'blog
                     </motion.div>
                 )}
 
-                {/* Request Access Card for Co-Founders */}
-                {!isMainAdmin && user && (
-                    <ManagerAccessRequestCard user={user} />
-                )}
+
 
                 {/* Pending Access Requests (Main Admin Only) */}
                 {isMainAdmin && (
